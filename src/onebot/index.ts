@@ -99,7 +99,7 @@ export class OneBot extends EventHandler {
   listen(port: number = 8080) {
     this.handleInit(() => {
       this.server.listen(port, () => {
-        logger.info('Onebot is listening on port 8080');
+        logger.info(`Onebot is listening on port ${port}`);
       });
     });
   }

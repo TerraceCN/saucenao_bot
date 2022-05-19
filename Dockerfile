@@ -27,6 +27,5 @@ RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list \
     && echo "Asia/Shanghai" > /etc/timezone
 
 COPY --from=0 /build/dist /app/dist
-ADD ./nsfwjs_model/ /app/nsfwjs_model/
 
 CMD ["node", "dist/index.js"]
