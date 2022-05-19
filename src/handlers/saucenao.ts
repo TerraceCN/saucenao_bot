@@ -72,43 +72,41 @@ onebot.message('group', async (inMessage, apiClient) => {
       )
     });
 
-    const resultMessage: Message[] = [
-      {type: 'text', data: {text: '搜图结果：'}}
-    ];
+    const resultMessage: Message[] = [];
 
     if (resultData.results.length === 0) {
-      resultMessage.push(cfm([{type: 'text', data: {text: '未找到结果'}}]));
+      resultMessage.push({type: 'text', data: {text: '未找到结果'}});
     } else {
       resultData.results.forEach((result: any) => {
-        resultMessage.push(cfm([
-          {
-            type: 'image',
-            data: {
-              file:
-                process.env.HOST_URL
-                ? `${process.env.HOST_URL}/proxy?url=${encodeURIComponent(result.header.thumbnail)}`
-                : result.header.thumbnail,
-              type: 'show'
-            }
-          },
-          {
-            type: 'text',
-            data: {
-              text:
-                `Similarity: ${result.header.similarity}\n`
-                + `Title: ${result.data.title ?? 'undefined'}\n`
-                + (result.data.ext_urls ? `URLs:\n` + (result.data.ext_urls as string[]).join('\n') : '')
-                + (result.data.eng_name ? `\nEnglish name: ${result.data.eng_name}` : '')
-                + (result.data.jp_name ? `\nJapanese name: ${result.data.jp_name}` : '')
-            }
+        resultMessage.push({
+          type: 'image',
+          data: {
+            file:
+              process.env.HOST_URL
+              ? `${process.env.HOST_URL}/proxy?url=${encodeURIComponent(result.header.thumbnail)}`
+              : result.header.thumbnail,
+            type: 'show'
           }
-        ]));
+        });
+        resultMessage.push({
+          type: 'text',
+          data: {
+            text:
+              `Similarity: ${result.header.similarity}\n`
+              + `Title: ${result.data.title ?? 'undefined'}\n`
+              + (result.data.ext_urls ? `URLs:\n` + (result.data.ext_urls as string[]).join('\n') : '')
+              + (result.data.eng_name ? `\nEnglish name: ${result.data.eng_name}` : '')
+              + (result.data.jp_name ? `\nJapanese name: ${result.data.jp_name}` : '')
+          }
+        });
       });
     }
-    await apiClient.call('send_group_forward_msg', {
-      group_id: inMessage.group_id,
-      messages: resultMessage
-    });
+    for (const message of resultMessage) {
+      await apiClient.call('send_group_msg', {
+        group_id: inMessage.group_id,
+        message: [message]
+      });
+    }
   } catch (e) {
     logger.error(e);
     inMessage.replyText('搜图失败');
